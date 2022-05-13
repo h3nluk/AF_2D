@@ -2,7 +2,7 @@
 
 #include "init.F90"
 #include "parameters.F90"
-#include "advection.F90"
+#include "advection2D.F90"
 
 program main
   
