@@ -26,7 +26,7 @@ module parameters
   real(kind=DTYPE), parameter :: dv = (ve-vb)/dimV
   
   real(kind=DTYPE), parameter :: dt = 0.01
-  real(kind=DTYPE), parameter :: tmax = 10.
+  real(kind=DTYPE), parameter :: tmax = 1.
   
   
   real(kind=DTYPE), parameter :: me = 1.

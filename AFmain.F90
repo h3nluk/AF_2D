@@ -25,8 +25,16 @@ program main
   
   call init(fe,sizex,sizev,xb,xe,vb,ve,dx,dv)
   call boundary(fe,sizex,sizev)
-  v(:) = -0.5
-  E(:) = -0.
+  
+  !do i=0, sizev
+  	!v(i) = i*0.01
+  !enddo
+  
+  do i=-2*B, sizex+2*B
+  	E(i) = i*0.01
+  enddo
+  
+  !E(:) = 0.
   
   do while(t < tmax)
     
