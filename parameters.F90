@@ -3,8 +3,8 @@
 module parameters
   implicit none 
   
-  integer, parameter :: dimX = 32
-  integer, parameter :: dimV = 32
+  integer, parameter :: dimX = 128
+  integer, parameter :: dimV = 128
   
   integer, parameter :: sizex = 2*dimX
   integer, parameter :: sizev = 2*dimV

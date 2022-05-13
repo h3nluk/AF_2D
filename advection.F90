@@ -60,7 +60,7 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   y_shift(:) = int(eta_arr(:))
   
   do i=-1, sizex+1,2
-  do j=1, sizev-1,2
+  do j=3, sizev-3,2
   
     do k=1,3
     
@@ -125,7 +125,7 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   enddo
   
   !overwrite
-  do i=-1,sizex+1,2
+  do i=1,sizex+1,2
   do j=1,sizev-1,2
   do k=1,3
     u(i+x_shift(k),j+y_shift(k)) = newinterfaces(i+x_shift(k),j+y_shift(k))
@@ -162,7 +162,7 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
   !update average
   dt_dxdy = dt/(dx*dy)
   
-  do i=-1,sizex+1,2
+  do i=1,sizex-1,2
   do j=1,sizev-1,2
   
     !composite Simpsons rule
@@ -195,7 +195,7 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
   enddo
   
   !overwrite
-  do i=-1,sizex+1,2
+  do i=1,sizex-1,2
   do j=1,sizev-1,2
     unew(i,j) = newavg(i,j)
   enddo
