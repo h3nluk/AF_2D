@@ -26,12 +26,14 @@ program main
   call init(fe,sizex,sizev,xb,xe,vb,ve,dx,dv)
   call boundary(fe,sizex,sizev)
   
-  !do i=0, sizev
-  	!v(i) = i*0.01
-  !enddo
+  !advection velocities
+  do i=0, sizev
+  	v(i) = vb + i * 0.5 * dv
+  enddo
   
   do i=-2*B, sizex+2*B
-  	E(i) = i*0.01
+  	E(i) = 0.35*sin((xb+i*0.5*dx)*0.25)
+  	!E(i) = 0.
   enddo
   
   !E(:) = 0.

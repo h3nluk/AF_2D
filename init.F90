@@ -17,7 +17,7 @@ subroutine init(u,sizex,sizev,xb,xe,vb,ve,dx,dv)
     x = xb + i*(0.5*dx)
     y = vb + j*(0.5*dv)
     
-    z = exp(-0.5*(x**2 + y**2))
+    z = exp(-0.5*(y**2))
     !z = sin(x)*cos(y)
     u(i,j) = z
     

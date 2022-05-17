@@ -60,7 +60,7 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   y_shift(:) = int(eta_arr(:))
   
   do i=-1, sizex+1,2
-  do j=3, sizev-3,2
+  do j=3, sizev-1,2
   
     do k=1,3
     
