@@ -5,7 +5,7 @@ subroutine boundary(u,sizex,sizev)
   implicit none
 
   integer :: sizex, sizev
-  real(kind=DTYPE) :: u(-2*B:sizex+2*B,0:sizev)
+  real(kind=DTYPE) :: u(-2*B:sizex+2*B,-2*B:sizev+2*B)
 
   integer :: ix,iy
 
@@ -16,10 +16,10 @@ subroutine boundary(u,sizex,sizev)
   enddo
   
   !y-direction
-!~   do iy=1,2*B
-!~     u(:,-iy) = u(:,sizev-iy)
-!~     u(:,sizev+iy) = u(:,iy)
-!~   enddo
+  do iy=1,2*B
+    u(:,-iy) = u(:,sizev-iy)
+    u(:,sizev+iy) = u(:,iy)
+  enddo
   
 end subroutine boundary
 
@@ -29,16 +29,16 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   
   integer :: sizex, sizev
   real(kind=DTYPE) :: dx, dy, dt
-  real(kind=DTYPE) :: ax(0:sizev) !v
+  real(kind=DTYPE) :: ax(-2*B:sizev+2*B) !v
   real(kind=DTYPE) :: ay(-2*B:sizex+2*B) !Ex
-  real(kind=DTYPE) :: u(-2*B:sizex+2*B, 0:sizev) !f(x,v)
+  real(kind=DTYPE) :: u(-2*B:sizex+2*B,-2*B:sizev+2*B) !f(x,v)
   
   integer :: i,j,k,a,b
   integer :: Nx,Ny,Sx,Sy,Wx,Wy,Ex,Ey,Cx,Cy
   integer :: x_shift(3), y_shift(3)
   real(kind=DTYPE) :: xi,eta,xi_eta,xisq,etasq,nodes,edges,bubble
   real(kind=DTYPE) :: xi_arr(3), eta_arr(3)
-  real(kind=DTYPE) :: newinterfaces(-2*B:sizex+2*B, 0:sizev)
+  real(kind=DTYPE) :: newinterfaces(-2*B:sizex+2*B,-2*B:sizev+2*B)
   
   !tracing
   
@@ -59,8 +59,8 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   x_shift(:) = int(xi_arr(:))
   y_shift(:) = int(eta_arr(:))
   
-  do i=-1, sizex+1,2
-  do j=3, sizev-1,2
+  do i=1, sizex+1,2
+  do j=1, sizev+1,2
   
     do k=1,3
     
@@ -126,7 +126,7 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   
   !overwrite
   do i=1,sizex+1,2
-  do j=1,sizev-1,2
+  do j=1,sizev+1,2
   do k=1,3
     u(i+x_shift(k),j+y_shift(k)) = newinterfaces(i+x_shift(k),j+y_shift(k))
   enddo
@@ -146,18 +146,18 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
   
   integer :: sizex, sizev
   real(kind=DTYPE) :: dx, dy, dt
-  real(kind=DTYPE) :: ax(0:sizev) !v
+  real(kind=DTYPE) :: ax(-2*B:sizev+2*B) !v
   real(kind=DTYPE) :: aynew(-2*B:sizex+2*B)  !E^{n+1}(x)
   real(kind=DTYPE) :: ayhalf(-2*B:sizex+2*B) !E^{n+1/2}(x)
   real(kind=DTYPE) :: ayold(-2*B:sizex+2*B)  !E^{n}(x)
-  real(kind=DTYPE) :: unew(-2*B:sizex+2*B, 0:sizev)  !f^{n+1}(x,v)
-  real(kind=DTYPE) :: uhalf(-2*B:sizex+2*B, 0:sizev) !f^{n+1/2}(x,v)
-  real(kind=DTYPE) :: uold(-2*B:sizex+2*B, 0:sizev)  !f^{n}(x,v)
+  real(kind=DTYPE) :: unew(-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n+1}(x,v)
+  real(kind=DTYPE) :: uhalf(-2*B:sizex+2*B,-2*B:sizev+2*B) !f^{n+1/2}(x,v)
+  real(kind=DTYPE) :: uold(-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n}(x,v)
   
   integer :: i, j
   real(kind=DTYPE) :: flux_left, flux_right, flux_top, flux_bottom
   real(kind=DTYPE) :: dt_dxdy
-  real(kind=DTYPE) :: newavg(-2*B:sizex+2*B, 0:sizev)
+  real(kind=DTYPE) :: newavg(-2*B:sizex+2*B,-2*B:sizev+2*B)
   
   !update average
   dt_dxdy = dt/(dx*dy)
@@ -166,17 +166,20 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
   do j=1,sizev-1,2
   
     !composite Simpsons rule
-    flux_left = (1./36.)*((ax(j-1)*uold(i-1,j-1)+ax(j+1)*uold(i-1,j+1)+ax(j-1)*unew(i-1,j-1)+ax(j+1)*unew(i-1,j+1)) & 
+    flux_left = (1./36.)* &
+    ( (ax(j-1)*uold(i-1,j-1)+ax(j+1)*uold(i-1,j+1)+ax(j-1)*unew(i-1,j-1)+ax(j+1)*unew(i-1,j+1)) & 
     + 4.* (ax(j)*(uold(i-1,j)+unew(i-1,j))+ax(j-1)*uhalf(i-1,j-1)+ax(j+1)*uhalf(i-1,j+1)) & 
-    + 16.*ax(j)*uhalf(i-1,j))
+    + 16.*ax(j)*uhalf(i-1,j) )
     
-    flux_right = (1./36.)*((ax(j-1)*uold(i+1,j-1)+ax(j+1)*uold(i+1,j+1)+ax(j-1)*unew(i+1,j-1)+ax(j+1)*unew(i+1,j+1)) & 
+    flux_right = (1./36.)* &
+    ( (ax(j-1)*uold(i+1,j-1)+ax(j+1)*uold(i+1,j+1)+ax(j-1)*unew(i+1,j-1)+ax(j+1)*unew(i+1,j+1)) & 
     + 4.* (ax(j)*(uold(i+1,j)+unew(i+1,j))+ax(j-1)*uhalf(i+1,j-1)+ax(j+1)*uhalf(i+1,j+1)) & 
-    + 16.*ax(j)*uhalf(i+1,j))
+    + 16.*ax(j)*uhalf(i+1,j) )
     
-    flux_top = (1./36.)*((ayold(i-1)*uold(i-1,j+1)+ayold(i+1)*uold(i+1,j+1)+aynew(i-1)*unew(i-1,j+1)+aynew(i+1)*unew(i+1,j+1)) & 
+    flux_top = (1./36.)* &
+    ( (ayold(i-1)*uold(i-1,j+1)+ayold(i+1)*uold(i+1,j+1)+aynew(i-1)*unew(i-1,j+1)+aynew(i+1)*unew(i+1,j+1)) & 
     + 4.* (ayold(i)*uold(i,j+1)+aynew(i)*unew(i,j+1)+ayhalf(i-1)*uhalf(i-1,j+1)+ayhalf(i+1)*uhalf(i+1,j+1)) & 
-    + 16.*ayhalf(i)*uhalf(i,j+1))
+    + 16.*ayhalf(i)*uhalf(i,j+1) )
     
     flux_bottom = (1./36.)*((ayold(i-1)*uold(i-1,j-1)+ayold(i+1)*uold(i+1,j-1)+aynew(i-1)*unew(i-1,j-1)+aynew(i+1)*unew(i+1,j-1)) & 
     + 4.* (ayold(i)*uold(i,j-1)+aynew(i)*unew(i,j-1)+ayhalf(i-1)*uhalf(i-1,j-1)+ayhalf(i+1)*uhalf(i+1,j-1)) & 

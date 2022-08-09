@@ -3,6 +3,8 @@
 #include "init.F90"
 #include "parameters.F90"
 #include "advection2D.F90"
+#include "error2D.F90"
+
 
 program main
   
@@ -10,33 +12,38 @@ program main
   
   implicit none 
   
-  real(kind=DTYPE), dimension(:,:), allocatable :: fe, fehalf, feold
+  real(kind=DTYPE), dimension(:,:), allocatable :: fe, fehalf, feold, f0
   real(kind=DTYPE), dimension(:), allocatable :: v
   real(kind=DTYPE), dimension(:), allocatable :: E
   
   real(kind=DTYPE) :: t = 0
+  real(kind=DTYPE) :: adverr2D
   integer :: i
   
-  allocate(fe(-2*B:sizex+2*B,0:sizev))
-  allocate(fehalf(-2*B:sizex+2*B,0:sizev))
-  allocate(feold(-2*B:sizex+2*B,0:sizev))
-  allocate(v(0:sizev))
+  allocate(fe(-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(f0(-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(fehalf(-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(feold(-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(v(-2*B:sizev+2*B))
   allocate(E(-2*B:sizex+2*B))
   
   call init(fe,sizex,sizev,xb,xe,vb,ve,dx,dv)
   call boundary(fe,sizex,sizev)
   
+  f0(:,:) = fe(:,:)
+  
   !advection velocities
-  do i=0, sizev
-  	v(i) = vb + i * 0.5 * dv
-  enddo
+!~   do i=0, sizev
+!~   	v(i) = vb + i * 0.5 * dv
+!~   enddo
   
-  do i=-2*B, sizex+2*B
-  	E(i) = 0.35*sin((xb+i*0.5*dx)*0.25)
-  	!E(i) = 0.
-  enddo
+!~   do i=-2*B, sizex+2*B
+!~   	E(i) = 0.35*sin((xb+i*0.5*dx)*0.25)
+!~   	!E(i) = 0.
+!~   enddo
   
-  !E(:) = 0.
+  v(:) = ax
+  E(:) = ay
   
   do while(t < tmax)
     
@@ -51,6 +58,7 @@ program main
     
     !Average-Update
     call Conservation(fe,fehalf,feold,v,E,E,E,dt,dx,dv,sizex,sizev)
+    call boundary(fe,sizex,sizev)
     
     t = t + dt 
   enddo
@@ -62,12 +70,31 @@ program main
     close(10)
   end do
   
+  do i=-2*B, sizex+2*B 
+    open(11, file="f0.dat", status ="unknown", position="append")
+    write(11,*) f0(i,:)
+    close(11)
+  end do
+  
   write(*,*) "time: ", t
   write(*,*) "max: ", maxval(fe(:,:))
   write(*,*) "min: ", minval(fe(:,:))
   
+  call geterror2D(fe,f0,sizex,sizev,adverr2D)
+  write(*,*) "error2D:"
+  write(*,*) dimX, dimV,  adverr2D
+  
+  write(*,*) "max:"
+  write(*,*) dimX, dimV, maxval(fe)
+  
+  write(*,*) "CFL : ", CFL
+  write(*,*) "dt : ", dt
+  write(*,*) "ax : ", ax
+  write(*,*) "ay : ", ay
+  
   
   deallocate(fe)
+  deallocate(f0)
   deallocate(fehalf)
   deallocate(feold)
   deallocate(v)

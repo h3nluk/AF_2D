@@ -1,0 +1,7 @@
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+f = np.genfromtxt('f.dat')
+f0 = np.genfromtxt()

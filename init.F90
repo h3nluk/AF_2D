@@ -6,10 +6,10 @@ subroutine init(u,sizex,sizev,xb,xe,vb,ve,dx,dv)
   
   integer :: sizex, sizev
   real(kind=DTYPE) :: xb, xe, vb, ve, dx, dv
-  real(kind=DTYPE) :: u(-2*B:sizex+2*B, 0:sizev)
+  real(kind=DTYPE) :: u(-2*B:sizex+2*B,-2*B:sizev+2*B)
   
   integer :: i, j
-  real(kind=DTYPE) :: x, y, z
+  real(kind=DTYPE) :: x, y, z, r2
   
   do i=0, sizex
   do j=0, sizev
@@ -17,7 +17,9 @@ subroutine init(u,sizex,sizev,xb,xe,vb,ve,dx,dv)
     x = xb + i*(0.5*dx)
     y = vb + j*(0.5*dv)
     
-    z = exp(-0.5*(y**2))
+    r2 = x**2 + y**2 
+    
+    z = exp(-0.5*r2)
     !z = sin(x)*cos(y)
     u(i,j) = z
     
@@ -33,7 +35,7 @@ subroutine init_averaging(u,sizex,sizev,dx,dv)
   
   integer :: sizex,sizev
   real(kind=DTYPE) :: dx,dv
-  real(kind=DTYPE) :: u(-2*B:sizex+2*B, 0:sizev)
+  real(kind=DTYPE) :: u(-2*B:sizex+2*B,-2*B:sizev+2*B)
   
   integer :: i, j
   real(kind=DTYPE) :: avg
