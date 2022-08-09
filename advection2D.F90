@@ -67,7 +67,7 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
       a = 0
       b = 0
       !characteristic origin
-      xi = xi_arr(k) - dt*(2.*ax(j+y_shift(k))/dx)
+      xi  = xi_arr(k)  - dt*(2.*ax(j+y_shift(k))/dx)
       eta = eta_arr(k) - dt*(2.*ay(i+x_shift(k))/dy)
       
       !cell shift
@@ -114,7 +114,7 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
       bubble = (1./16.)*(36.*u(Cx,Cy)-(u(Wx,Sy)+u(Wx,Ny) &
              + u(Ex,Ny)+u(Ex,Sy)) &
              - 4.*(u(Wx,Cy)+u(Ex,Cy)+u(Cx,Ny)+u(Cx,Sy))) &
-             * (1-xisq)*(1-etasq)
+             * (1.-xisq)*(1.-etasq)
 
       newinterfaces(i+x_shift(k),j+y_shift(k)) = nodes + edges + bubble
 !~       newinterfaces(i+x_shift(k),j+y_shift(k)) = k
@@ -128,7 +128,9 @@ subroutine Evolution(u,sizex,sizev,ax,ay,dx,dy,dt)
   do i=1,sizex+1,2
   do j=1,sizev+1,2
   do k=1,3
-    u(i+x_shift(k),j+y_shift(k)) = newinterfaces(i+x_shift(k),j+y_shift(k))
+  
+    u(i+x_shift(k), j+y_shift(k)) = newinterfaces(i+x_shift(k), j+y_shift(k))
+  
   enddo
   enddo
   enddo
@@ -147,12 +149,14 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
   integer :: sizex, sizev
   real(kind=DTYPE) :: dx, dy, dt
   real(kind=DTYPE) :: ax(-2*B:sizev+2*B) !v
-  real(kind=DTYPE) :: aynew(-2*B:sizex+2*B)  !E^{n+1}(x)
+  
+  real(kind=DTYPE) :: aynew (-2*B:sizex+2*B)  !E^{n+1}(x)
   real(kind=DTYPE) :: ayhalf(-2*B:sizex+2*B) !E^{n+1/2}(x)
-  real(kind=DTYPE) :: ayold(-2*B:sizex+2*B)  !E^{n}(x)
-  real(kind=DTYPE) :: unew(-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n+1}(x,v)
-  real(kind=DTYPE) :: uhalf(-2*B:sizex+2*B,-2*B:sizev+2*B) !f^{n+1/2}(x,v)
-  real(kind=DTYPE) :: uold(-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n}(x,v)
+  real(kind=DTYPE) :: ayold (-2*B:sizex+2*B)  !E^{n}(x)
+  
+  real(kind=DTYPE) :: unew (-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n+1}(x,v)
+  real(kind=DTYPE) :: uhalf(-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n+1/2}(x,v)
+  real(kind=DTYPE) :: uold (-2*B:sizex+2*B,-2*B:sizev+2*B)  !f^{n}(x,v)
   
   integer :: i, j
   real(kind=DTYPE) :: flux_left, flux_right, flux_top, flux_bottom
@@ -181,9 +185,10 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
     + 4.* (ayold(i)*uold(i,j+1)+aynew(i)*unew(i,j+1)+ayhalf(i-1)*uhalf(i-1,j+1)+ayhalf(i+1)*uhalf(i+1,j+1)) & 
     + 16.*ayhalf(i)*uhalf(i,j+1) )
     
-    flux_bottom = (1./36.)*((ayold(i-1)*uold(i-1,j-1)+ayold(i+1)*uold(i+1,j-1)+aynew(i-1)*unew(i-1,j-1)+aynew(i+1)*unew(i+1,j-1)) & 
+    flux_bottom = (1./36.)* &
+    ( (ayold(i-1)*uold(i-1,j-1)+ayold(i+1)*uold(i+1,j-1)+aynew(i-1)*unew(i-1,j-1)+aynew(i+1)*unew(i+1,j-1)) & 
     + 4.* (ayold(i)*uold(i,j-1)+aynew(i)*unew(i,j-1)+ayhalf(i-1)*uhalf(i-1,j-1)+ayhalf(i+1)*uhalf(i+1,j-1)) & 
-    + 16.*ayhalf(i)*uhalf(i,j-1))
+    + 16.*ayhalf(i)*uhalf(i,j-1) )
   
     !Finite Volume update
     newavg(i,j) = uold(i,j) - dt_dxdy &
@@ -200,7 +205,9 @@ subroutine Conservation(unew,uhalf,uold,ax,aynew,ayhalf,ayold,dt,dx,dy,sizex,siz
   !overwrite
   do i=1,sizex-1,2
   do j=1,sizev-1,2
+  
     unew(i,j) = newavg(i,j)
+  
   enddo
   enddo
   

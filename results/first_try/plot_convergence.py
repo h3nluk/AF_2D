@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ~ fname = 'error2D_ax=1ay=0.txt'
-fname = 'error2D_ax=1ay=1.txt'
+# ~ fname = 'error2D_ax=1ay=1.txt'
 # ~ fname = 'error2D_MaxNorm_ax=1ay=0.txt'
-# ~ fname = 'error2D_MaxNorm_ax=1ay=1.txt'
+fname = 'error2D_MaxNorm_ax=1ay=1.txt'
 
 dat = np.genfromtxt(fname)
 
@@ -14,7 +14,7 @@ def order(x,A,N):
 
 Nxs = dat[:,0]
 Nvs = dat[:,1]
-errs = np.abs(dat[:,2])
+errs = np.abs(1. - dat[:,2])
 
 N = Nxs * Nvs
 

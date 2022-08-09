@@ -47,7 +47,7 @@ subroutine init_averaging(u,sizex,sizev,dx,dv)
     !avg = (1./9.)*(u(i-1,j)+u(i+1,j)+u(i,j-1)+u(i,j+1)+u(i+1,j+1)+u(i+1,j-1)+u(i-1,j+1)+u(i-1,j-1)+u(i,j))
     
     !Simpson averaging
-    avg = (1./36.)*(u(i-1,j-1)+u(i-1,j+1)+u(i+1,j+1)+u(i+1,j-1)) + 4.*(u(i-1,j)+u(i+1,j)+u(i,j-1)+u(i,j+1)) + 16.*u(i,j)
+    avg = (1./36.)*((u(i-1,j-1)+u(i-1,j+1)+u(i+1,j+1)+u(i+1,j-1)) + 4.*(u(i-1,j)+u(i+1,j)+u(i,j-1)+u(i,j+1)) + 16.*u(i,j))
     
     u(i,j) = avg
     

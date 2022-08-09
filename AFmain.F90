@@ -17,18 +17,21 @@ program main
   real(kind=DTYPE), dimension(:), allocatable :: E
   
   real(kind=DTYPE) :: t = 0
-  real(kind=DTYPE) :: adverr2D
+  real(kind=DTYPE) :: adv_err2D
   integer :: i
   
-  allocate(fe(-2*B:sizex+2*B,-2*B:sizev+2*B))
-  allocate(f0(-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(fe    (-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(f0    (-2*B:sizex+2*B,-2*B:sizev+2*B))
   allocate(fehalf(-2*B:sizex+2*B,-2*B:sizev+2*B))
-  allocate(feold(-2*B:sizex+2*B,-2*B:sizev+2*B))
+  allocate(feold (-2*B:sizex+2*B,-2*B:sizev+2*B))
+  
   allocate(v(-2*B:sizev+2*B))
   allocate(E(-2*B:sizex+2*B))
   
   call init(fe,sizex,sizev,xb,xe,vb,ve,dx,dv)
   call boundary(fe,sizex,sizev)
+  
+  call init_averaging(fe,sizex,sizev,dx,dv)
   
   f0(:,:) = fe(:,:)
   
@@ -47,12 +50,13 @@ program main
   
   do while(t < tmax)
     
-    feold(:,:) = fe(:,:)
+    feold(:,:)  = fe(:,:)
     fehalf(:,:) = fe(:,:)
     
     !Interface-Update
     call Evolution(fe,sizex,sizev,v,E,dx,dv,dt)
     call boundary(fe,sizex,sizev)
+    
     call Evolution(fehalf,sizex,sizev,v,E,dx,dv,0.5*dt)
     call boundary(fehalf,sizex,sizev)
     
@@ -60,7 +64,8 @@ program main
     call Conservation(fe,fehalf,feold,v,E,E,E,dt,dx,dv,sizex,sizev)
     call boundary(fe,sizex,sizev)
     
-    t = t + dt 
+    t = t + dt
+    
   enddo
   
   !Output
@@ -76,16 +81,16 @@ program main
     close(11)
   end do
   
-  write(*,*) "time: ", t
-  write(*,*) "max: ", maxval(fe(:,:))
-  write(*,*) "min: ", minval(fe(:,:))
+  write(*,*) "time : ", t
+  write(*,*) "max : ", maxval(fe(:,:))
+  write(*,*) "min : ", minval(fe(:,:))
   
-  call geterror2D(fe,f0,sizex,sizev,adverr2D)
-  write(*,*) "error2D:"
-  write(*,*) dimX, dimV,  adverr2D
+  call geterror2D(fe,f0,sizex,sizev,adv_err2D)
+  write(*,*) "error2D : "
+  write(*,*) dimX, dimV,  adv_err2D
   
-  write(*,*) "max:"
-  write(*,*) dimX, dimV, maxval(fe)
+  write(*,*) "max : "
+  write(*,*) dimX, dimV, maxval(fe(:,:))
   
   write(*,*) "CFL : ", CFL
   write(*,*) "dt : ", dt
