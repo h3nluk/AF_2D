@@ -1,5 +1,0 @@
-
-Done:
-- test verschiedene Geschwindigkeiten --> schief gibt dritte Ordnung
-- ax = 0 oder ay = 0 gibt Mesh alignment problem --> zweite Ordnung
-- Maximumsnorm geht immer mit dritter ORdnung 
